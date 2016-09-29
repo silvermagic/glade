@@ -33,3 +33,11 @@ dist-hook:
 	else \
 		echo A git clone is required to generate a ChangeLog >&2; \
 	fi
+
+if PLATFORM_WIN32
+
+.PHONY: msi 
+msi:
+	make -C $(builddir)/data msi
+
+endif

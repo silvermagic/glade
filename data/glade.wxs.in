@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?define Version = "@GLADE_MAJOR_VERSION@.@GLADE_MINOR_VERSION@.@GLADE_MICRO_VERSION@"?>
+  <?define Arch = "@WIXL_ARCH@"?>
+  <?if $(var.Arch) = "x64"?>
+      <?define GLIB_ARCH = "win64"?>
+      <?define ArchString = "64-bit"?>
+      <?define ArchProgramFilesFolder = "ProgramFiles64Folder"?>
+      <?define Win64 = "yes"?>
+  <?else?>
+      <?define GLIB_ARCH = "win32"?>
+      <?define ArchString = "32-bit"?>
+      <?define ArchProgramFilesFolder = "ProgramFilesFolder"?>
+      <?define Win64 = "no"?>
+  <?endif?>
+
+  <?require libxml2.wxi?>
+  <?require hicolor-icon-theme.wxi?>
+  <?require adwaita-icon-theme.wxi?>
+  <?require gtk3.wxi?>
+
+  <?define UpgradeCode = "c4aa8f4e-860d-11e6-9578-000c2931ee1d"?>
+  <Product Id="*"
+           Name="Glade @GLADE_MAJOR_VERSION@.@GLADE_MINOR_VERSION@.@GLADE_MICRO_VERSION@ ($(var.ArchString))"
+           Manufacturer="Glade"
+           Version="$(var.Version)"
+           UpgradeCode="$(var.UpgradeCode)"
+           Language="1033">
+
+    <Package InstallerVersion="200" Compressed="yes" Comments="comments" InstallScope="perMachine"/>
+    <Media Id="1" Cabinet="cabinet.cab" EmbedCab="yes"/>
+
+    <Property Id="ARPHELPLINK" Value="http://www.nocsys.cn/en/index.html"/>
+    <Property Id="VersionMajor" Value="@GLADE_MAJOR_VERSION@"/>
+    <Property Id="VersionMinor" Value="@GLADE_MINOR_VERSION@"/>
+    <Property Id="VersionMicro" Value="@GLADE_MICRO_VERSION@"/>
+    <Property Id="ARPNOMODIFY" Value="1"/>
+    <Property Id="ARPNOREPAIR" Value="1"/>
+    <Property Id="ARPPRODUCTICON" Value="glade.ico"/>
+    <Property Id="ARPURLINFOABOUT" Value="http://www.nocsys.cn/en/about_us.html"/>
+    <Upgrade Id="$(var.UpgradeCode)">
+      <UpgradeVersion Minimum="$(var.Version)" OnlyDetect="yes" Property="NEWERVERSIONDETECTED"/>
+      <UpgradeVersion Minimum="0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="no" Property="OLDERVERSIONBEINGUPGRADED"/>
+    </Upgrade>
+    <Condition Message="Glade is already installed.">NOT NEWERVERSIONDETECTED</Condition>
+
+    <DirectoryRef Id="TARGETDIR">
+      <Component Id="CRegistryEntries" Guid="*">
+        <RegistryKey Root='HKLM' Key='Software\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{d3a0183e-8608-11e6-926c-000c2931ee1d}'>
+          <RegistryValue Type='string' Name='AppPath' Value='[INSTALLDIR]\bin'/>
+          <RegistryValue Type='string' Name='AppName' Value='x86_64-w64-mingw32-glade.exe'/>
+          <RegistryValue Type='integer' Name='Policy' Value='3'/>
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.ArchProgramFilesFolder)">
+        <!-- program folder name -->
+        <Directory Id="INSTALLDIR" Name="GNOME Foundation">
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="MENUDIR" Name="GNOME Foundation"/>
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="MENUDIR">
+      <Component Id="CShortcut" Guid="*">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Glade"
+                  Target="[INSTALLDIR]\bin\x86_64-w64-mingw32-glade.exe"
+                  Icon="glade.ico"
+                  WorkingDirectory="INSTALLDIRBIN"/>		  
+        <RemoveFolder Id="MENUDIR" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Glade\Glade-shortcut" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="Complete"  Level="1">
+      <ComponentGroupRef Id="CG.libxml2"/>
+      <ComponentGroupRef Id="CG.hicolor-icon-theme"/>
+      <ComponentGroupRef Id="CG.adwaita-icon-theme"/>
+      <ComponentGroupRef Id="CG.gtk3"/>
+      <ComponentGroupRef Id="CG.glade"/>
+      <ComponentRef Id="CShortcut"/>
+      <ComponentRef Id="CRegistryEntries"/>
+    </Feature>
+
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallValidate"/>
+    </InstallExecuteSequence>
+
+    <Icon Id="glade.ico" SourceFile="./icons/glade.ico"/>
+  </Product>
+</Wix>

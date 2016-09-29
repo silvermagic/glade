@@ -233,6 +233,15 @@ dnl ================================================================
 case $host_os in
   *mingw* | pw32* | cygwin*)
     platform_win32=yes
+    case "$host" in
+        amd64*|x86_64*)
+            WIXL_ARCH="x64"
+        ;;
+        *)
+            WIXL_ARCH="x86"
+        ;;
+        esac
+        AC_SUBST(WIXL_ARCH)
     ;;
   *)
     platform_win32=no
@@ -305,6 +314,7 @@ AC_SUBST([AM_LDFLAGS])
 
 AC_CONFIG_FILES([
 Makefile
+data/glade.wxs
 data/gladeui-2.0.pc
 data/glade.desktop.in
 data/Makefile
